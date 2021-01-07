@@ -9,7 +9,6 @@ from indexer import Indexer
 from searcher import Searcher
 import numpy as np
 import utils
-from gensim.scripts.glove2word2vec import glove2word2vec
 
 
 # DO NOT CHANGE THE CLASS NAME
@@ -67,11 +66,8 @@ class SearchEngine:
         This is where you would load models like word2vec, LSI, LDA, etc. and 
         assign to self._model, which is passed on to the searcher at query time.
         """
-        filename = self._config.glove_twitter_27B_25d_path
-        word2vec_output_file = 'glove.twitter.27B.25d.txt.word2vec'
-        glove2word2vec(filename, word2vec_output_file)
-        filename = word2vec_output_file
-        self._model = gensim.models.KeyedVectors.load_word2vec_format(filename, binary=False)
+        filename = self._config.google_news_vectors_negative300_path
+        self._model = gensim.models.KeyedVectors.load_word2vec_format(filename, binary=True, datatype=np.float16)
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -101,9 +97,11 @@ def main():
     # print("start: ", time.asctime(time.localtime(time.time())))
     config = ConfigClass()
     Engine = SearchEngine(config)
+    # print("start: ", time.asctime(time.localtime(time.time())))
     corpus_path = "C:\\Users\\ASUS\\Desktop\\data_part_c\\data\\benchmark_data_train.snappy.parquet"
     # corpus_path = "C:\\Users\\ASUS\\Desktop\\Data\\Data\\date=07-19-2020\\covid19_07-19.snappy.parquet"
-    Engine.build_index_from_parquet( corpus_path)
+    # Engine.build_index_from_parquet( corpus_path)
+    # Engine._indexer.save_index("inverted_idx")
     # print("finish: ", time.asctime(time.localtime(time.time())))
 
     Engine.load_index("inverted_idx")

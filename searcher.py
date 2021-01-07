@@ -29,11 +29,13 @@ class Searcher:
             a list of tweet_ids where the first element is the most relavant 
             and the last is the least relevant result.
         """
-        query_as_list = self._parser.parse_sentence(query)
+        # query_as_list = self._parser.parse_sentence(query)
+        query_as_list = self._parser.parse_query(query)
 
         relevant_docs = self._relevant_docs_from_posting(query_as_list)
         n_relevant = len(relevant_docs)
-        ranked_doc_ids = Ranker.rank_relevant_docs(relevant_docs)
+        ranked_doc_ids = self._ranker.rank_relevant_docs(self._indexer.documents_dict, self._model, relevant_docs, query_as_list, k)
+        # print(n_relevant, ranked_doc_ids)
         return n_relevant, ranked_doc_ids
 
     # feel free to change the signature and/or implementation of this function 
@@ -50,4 +52,28 @@ class Searcher:
             for doc_id, tf in posting_list:
                 df = relevant_docs.get(doc_id, 0)
                 relevant_docs[doc_id] = df + 1
-        return relevant_docs
+
+        min_len = min(2000, len(relevant_docs))
+        relevant_docs_sorted = dict(sorted(relevant_docs.items(), key=lambda item: item[1], reverse=True)[:min_len])
+        return relevant_docs_sorted
+
+
+    def basic_search(self, query, k=None):
+        """
+        Executes a query over an existing index and returns the number of
+        relevant docs and an ordered list of search results (tweet ids).
+        Input:
+            query - string.
+            k - number of top results to return, default to everything.
+        Output:
+            A tuple containing the number of relevant search results, and
+            a list of tweet_ids where the first element is the most relavant
+            and the last is the least relevant result.
+        """
+        query_as_list = self._parser.parse_query(query)
+
+        relevant_docs = self._relevant_docs_from_posting(query_as_list)
+        n_relevant = len(relevant_docs)
+        ranked_doc_ids = self._ranker.basic_rank_relevant_docs(relevant_docs, k)
+        return n_relevant, ranked_doc_ids
+

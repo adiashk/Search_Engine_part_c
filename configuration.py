@@ -15,8 +15,10 @@ class ConfigClass:
         self.saveFilesWithStem = self.savedFileMainFolder + "/WithStem"
         self.saveFilesWithoutStem = self.savedFileMainFolder + "/WithoutStem"
         self.toStem = False
-        self.google_news_vectors_negative300_path = '../../../../GoogleNews-vectors-negative300.bin'
-        self.glove_twitter_27B_25d_path = '../../../../glove.twitter.27B.25d.txt'
+        # self.google_news_vectors_negative300_path = '../../../../GoogleNews-vectors-negative300.bin'
+        self.google_news_vectors_negative300_path = 'GoogleNews-vectors-negative300.bin'
+        # self.glove_twitter_27B_25d_path = '../../../../glove.twitter.27B.25d.txt'
+        self.glove_twitter_27B_25d_path = 'glove.twitter.27B.25d.txt'
 
         print('Project was created successfully..')
 
