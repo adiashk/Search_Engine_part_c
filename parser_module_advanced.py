@@ -94,16 +94,16 @@ class Parse:
         named_entity = None
         # named_entity = self.Named_Entity_Recognition(full_text)
 
-        # if full_text[0] == 'R' and full_text[1] == 'T':
-        #     if retweet_url is not None:
-        #         last_slash_index = retweet_url.rfind('/')
-        #         if last_slash_index > 0:
-        #             original_tweet_id = retweet_url[last_slash_index + 1:len(retweet_url) - 2]
-        #             if len(original_tweet_id) > 0 and original_tweet_id.isdigit():
-        #                 if original_tweet_id not in self.re_tweet_set:
-        #                     self.re_tweet_set.add(original_tweet_id)
-        #                 else:
-        #                     return {}
+        if full_text[0] == 'R' and full_text[1] == 'T':
+            if retweet_url is not None:
+                last_slash_index = retweet_url.rfind('/')
+                if last_slash_index > 0:
+                    original_tweet_id = retweet_url[last_slash_index + 1:len(retweet_url) - 2]
+                    if len(original_tweet_id) > 0 and original_tweet_id.isdigit():
+                        if original_tweet_id not in self.re_tweet_set:
+                            self.re_tweet_set.add(original_tweet_id)
+                        else:
+                            return {}
 
         tokenized_text = self.parse_sentence(full_text)
 
@@ -488,3 +488,115 @@ class Parse:
             term = ps.stem(term)
         return term
 
+    def parse_doc_del_RT(self, doc_as_list):
+        """
+        This function takes a tweet document as list and break it into different fields
+        :param doc_as_list: list re-preseting the tweet.
+        :return: Document object with corresponding fields.
+        """
+        tweet_id = doc_as_list[0]
+        tweet_date = doc_as_list[1]
+        full_text = doc_as_list[2]
+        url = doc_as_list[3]
+        indices = doc_as_list[4]
+        retweet_text = doc_as_list[5]
+        retweet_url = doc_as_list[6]
+        retweet_indices = doc_as_list[7]
+        quote_text = doc_as_list[8]
+        quote_url = doc_as_list[9]
+        quote_indices = doc_as_list[10]
+        retweet_quoted_text = doc_as_list[11]
+        retweet_quoted_urls = doc_as_list[12]
+        retweet_quoted_indices = doc_as_list[13]
+        term_dict = {}
+        named_entity = None
+        # named_entity = self.Named_Entity_Recognition(full_text)
+
+        if full_text[0] == 'R' and full_text[1] == 'T':
+            if retweet_url is not None:
+                last_slash_index = retweet_url.rfind('/')
+                if last_slash_index > 0:
+                    original_tweet_id = retweet_url[last_slash_index + 1:len(retweet_url) - 2]
+                    if len(original_tweet_id) > 0 and original_tweet_id.isdigit():
+                        if original_tweet_id not in self.re_tweet_set:
+                            self.re_tweet_set.add(original_tweet_id)
+                        else:
+                            return {}
+
+        tokenized_text = self.parse_sentence(full_text)
+
+        # doc_length = len(tokenized_text)  # after text operations.
+
+        # for term in tokenized_text:  # enumerate---------------->
+        tokenized_text_len = len(tokenized_text)
+        temp_split_url = []
+        #      temp_split_url = self.convert_full_url(url)  # get list of terms from URL
+        temp_split_url = self.convert_full_url(url)  # get list of terms from URL
+        skip = 0
+        temp_split_hashtag = []
+        index = 0
+        doc_length = 0
+        counter_rt = 0
+        while index < len(tokenized_text):
+            term = tokenized_text[index]
+            term = self.remove_signs(term)
+            # if term == 'RT' or term == 'rt':
+            #     counter_rt += 1
+            #     break
+            if term == '' or not term.isascii():
+                index += 1
+                continue
+
+            # index = tokenized_text_len - 1 - i
+            # term = self.covert_words(index, term, tokenized_text)  # replace: Number percent To Number%
+
+            # roles :
+            term, skip = self.convert_numbers(index, term, tokenized_text)
+            temp_split_hashtag, to_delete_Hash = self.convert_hashtag(term, temp_split_hashtag)
+            temp_split_url, to_delete_URL = self.convert_url(term,
+                                                             temp_split_url)  # create set of terms from URL or full text
+            #   temp_split_url, to_delete_URL = self.convert_url(term, temp_split_url)  # create set of terms from URL or full text
+
+            if self.stemming:
+                term = self.convert_stemming(term)
+            if not to_delete_Hash:
+                if not to_delete_URL:
+                    if term not in term_dict.keys():
+                        term_dict[term] = 1
+                    else:
+                        term_dict[term] += 1
+
+            index += (skip + 1)
+
+        for term in temp_split_hashtag:
+            if self.stemming:
+                term = self.convert_stemming(term)
+            if term not in term_dict.keys():
+                term_dict[term] = 1
+            else:
+                term_dict[term] += 1
+
+        for term in temp_split_url:
+            if self.stemming:
+                term = self.convert_stemming(term)
+            if term not in term_dict.keys():
+                term_dict[term] = 1
+            else:
+                term_dict[term] += 1
+
+        doc_length = doc_length + len(temp_split_url) + len(temp_split_hashtag)
+
+        amount_of_unique_words = len(term_dict)
+
+        if len(term_dict) > 0:
+            most_frequent_term = max(term_dict, key=term_dict.get)
+            max_tf = term_dict[most_frequent_term]
+
+        else:
+            most_frequent_term = ""
+            max_tf = 0
+
+        document = Document(tweet_id, tweet_date, full_text, url, retweet_text, retweet_url, quote_text,
+                            quote_url, term_dict, doc_length, amount_of_unique_words, max_tf, most_frequent_term,
+                            self.named_entity)
+        return document

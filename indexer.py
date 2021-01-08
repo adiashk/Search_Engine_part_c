@@ -13,6 +13,7 @@ class Indexer:
         self.config = config
         self.documents_dict = defaultdict(list)
         self.extra_stop_words = ['rt', 'www', 'http', 'https', 'tco', 'didnt', 'dont', 'twitter.com']
+        # self.extra_stop_words = []
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.

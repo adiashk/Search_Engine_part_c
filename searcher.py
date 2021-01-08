@@ -1,5 +1,7 @@
 from ranker import Ranker
 import utils
+from nltk.corpus import wordnet
+import nltk
 
 
 # DO NOT MODIFY CLASS NAME
@@ -59,17 +61,6 @@ class Searcher:
 
 
     def basic_search(self, query, k=None):
-        """
-        Executes a query over an existing index and returns the number of
-        relevant docs and an ordered list of search results (tweet ids).
-        Input:
-            query - string.
-            k - number of top results to return, default to everything.
-        Output:
-            A tuple containing the number of relevant search results, and
-            a list of tweet_ids where the first element is the most relavant
-            and the last is the least relevant result.
-        """
         query_as_list = self._parser.parse_query(query)
 
         relevant_docs = self._relevant_docs_from_posting(query_as_list)
@@ -77,3 +68,37 @@ class Searcher:
         ranked_doc_ids = self._ranker.basic_rank_relevant_docs(relevant_docs, k)
         return n_relevant, ranked_doc_ids
 
+
+    def wordnet_search(self, query, k=None):
+        # nltk.download('wordnet')
+        query_as_list = self._parser.parse_query(query)
+        query_tmp = list(query_as_list)
+        for term in query_tmp:
+            synonyms = wordnet.synsets(term.lower())
+            for synonym in synonyms:
+                extra_term = synonym.lemmas()[0].name()
+                if extra_term != term.lower():
+                    query_as_list.append(extra_term)
+                    break
+
+        relevant_docs = self._relevant_docs_from_posting(query_as_list)
+        n_relevant = len(relevant_docs)
+        ranked_doc_ids = self._ranker.basic_rank_relevant_docs(relevant_docs, k)
+        return n_relevant, ranked_doc_ids
+
+    # def best_search(self, query, k=None):
+    #     # nltk.download('wordnet')
+    #     query_as_list = self._parser.parse_query(query)
+    #     query_tmp = list(query_as_list)
+    #     for term in query_tmp:
+    #         synonyms = wordnet.synsets(term.lower())
+    #         for synonym in synonyms:
+    #             extra_term = synonym.lemmas()[0].name()
+    #             if extra_term != term.lower():
+    #                 query_as_list.append(extra_term)
+    #                 break
+    #
+    #     relevant_docs = self._relevant_docs_from_posting(query_as_list)
+    #     n_relevant = len(relevant_docs)
+    #     ranked_doc_ids = self._ranker.rank_relevant_docs(self._indexer.documents_dict, self._model, relevant_docs, query_as_list, k)
+    #     return n_relevant, ranked_doc_ids
