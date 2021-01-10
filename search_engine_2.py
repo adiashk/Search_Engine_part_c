@@ -45,9 +45,17 @@ class SearchEngine:
             number_of_documents += 1
             # index the document data
             self._indexer.add_new_doc(parsed_document)
-        self._indexer.inverted_idx = {key: val for key, val in self._indexer.inverted_idx.items() if val != 1}
-        self._indexer.postingDict = {key: val for key, val in self._indexer.postingDict.items() if len(val) != 1}
+
+        print('self._indexer.inverted_idx: ', len(self._indexer.inverted_idx))
+        print('self._indexer.postingDict: ', len(self._indexer.postingDict))
+        print("----------------------------")
+        self._indexer.inverted_idx = {key: val for key, val in self._indexer.inverted_idx.items() if val > 1}
+        self._indexer.postingDict = {key: val for key, val in self._indexer.postingDict.items() if len(val) > 1}
+        print('self._indexer.inverted_idx: ', len(self._indexer.inverted_idx))
+        print('self._indexer.postingDict: ', len(self._indexer.postingDict))
         print('Finished parsing and indexing.')
+
+
         # self._indexer.save_index('idx_bench')
 
     # DO NOT MODIFY THIS SIGNATURE
@@ -89,6 +97,9 @@ class SearchEngine:
         """
         searcher = Searcher(self._parser, self._indexer, model=self._model)
         return searcher.search(query)
+
+        # searcher = Searcher(self._parser, self._indexer, model=self._model)
+        # return searcher.basic_search(query)
 
 def read_queries(queries):
     # with open(queries) as f:

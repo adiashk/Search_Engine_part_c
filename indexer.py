@@ -12,7 +12,8 @@ class Indexer:
         self.named_entity_idx = defaultdict(list)
         self.config = config
         self.documents_dict = defaultdict(list)
-        self.extra_stop_words = ['rt', 'www', 'http', 'https', 'tco', 'didnt', 'dont', 'twitter.com']
+        # self.extra_stop_words = ['rt', 'www', 'http', 'https', 'tco', 'didnt', 'dont', 'twitter.com', '&amp', '-', '|']
+        self.extra_stop_words = ['rt']
         # self.extra_stop_words = []
 
     # DO NOT MODIFY THIS SIGNATURE
@@ -42,14 +43,25 @@ class Indexer:
                             self.postingDict[term].append((document.tweet_id, document_dictionary[term]))
 
                     elif term[0].islower(): # this is lower and there wad upper before -> insert as lower and move what was at upper
-                        if term.capitalize() in self.inverted_idx.keys():
+                        if term.upper() in self.inverted_idx.keys():
+                            self.inverted_idx[term] = self.inverted_idx[term.upper()] + 1
+                            self.postingDict[term] = self.postingDict[term.upper()]
+                            self.postingDict[term].append((document.tweet_id, document_dictionary[term]))
+                            # del self.inverted_idx[term.upper()]
+                            self.inverted_idx.pop(term.upper())
+                            del self.postingDict[term.upper()]
+
+                        elif term.capitalize() in self.inverted_idx.keys():
                             self.inverted_idx[term] = self.inverted_idx[term.capitalize()] + 1
                             self.postingDict[term] = self.postingDict[term.capitalize()]
+                            self.postingDict[term].append((document.tweet_id, document_dictionary[term]))
                             del self.inverted_idx[term.capitalize()]
                             del self.postingDict[term.capitalize()]
 
                         else:  # this is lower and there wad noting before -> insert as lower
                             self.inverted_idx[term] = 1
+                            self.postingDict[term].append((document.tweet_id, document_dictionary[term]))
+
                     else:
                         self.inverted_idx[term] = 1
                         self.postingDict[term].append((document.tweet_id, document_dictionary[term]))
@@ -57,26 +69,41 @@ class Indexer:
                     self.inverted_idx[term] += 1
                     self.postingDict[term].append((document.tweet_id, document_dictionary[term]))
                     # TODO- save  details about doc
+                self.inverted_idx = {key: val for key, val in self.inverted_idx.items() if val != 0}
 
             except:
                 print('problem with the following key {}'.format(term[0]))
         self.add_named_entity(document)
         self.documents_dict[document.tweet_id].append((document.amount_of_unique_words, document.max_tf, document.term_doc_dictionary, document.most_frequent_term))
 
-
     def add_named_entity(self, document):
         document_named_entity = document.named_entity
-        if document_named_entity is not None:
-            for name in document_named_entity:
-                if name in self.extra_stop_words or name.lower() in self.extra_stop_words:
-                    continue
-                if name in self.named_entity_idx.keys():  # recognize as named_entity before
-                    self.inverted_idx[name] += 1
-                    self.postingDict[name].append((document.tweet_id, document_named_entity[name]))
-                    self.postingDict[name].extend(self.named_entity_idx[name])
+        try:
 
-                else: # new possible entity
-                    self.named_entity_idx[name].append((document.tweet_id, document_named_entity[name]))
+            if document_named_entity is not None and len(document_named_entity) > 0:
+                for name in document_named_entity.keys():
+                    if name in self.extra_stop_words or name.lower() in self.extra_stop_words:
+                        continue
+                    if name in self.named_entity_idx.keys():  # recognize as named_entity before
+                        if name or name.lower() not in self.inverted_idx.keys():
+                            add_count = len(self.named_entity_idx[name])+1
+
+                            self.inverted_idx[name] = add_count
+                            self.postingDict[name].append((document.tweet_id, document_named_entity[name]))
+                            self.postingDict[name].extend(self.named_entity_idx[name])
+
+                        else:
+                            self.inverted_idx[name] += 1
+                            self.postingDict[name].append((document.tweet_id, document_named_entity[name]))
+                        # if len(self.named_entity_idx[name]) > 0:
+                        #     self.postingDict[name].extend(self.named_entity_idx[name])
+                        #     del self.named_entity_idx[name]
+
+
+                    else: # new possible entity
+                        self.named_entity_idx[name].append((document.tweet_id, document_named_entity[name]))
+        except:
+            print('problem with the following key {}', document_named_entity)
 
 
     # DO NOT MODIFY THIS SIGNATURE

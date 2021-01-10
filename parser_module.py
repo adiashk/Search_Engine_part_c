@@ -15,7 +15,7 @@ class Parse:
         # nltk.download('stopwords')
         # self.stop_words = frozenset(stopwords.words('english'))
         self.stop_words = stopwords.words('english')
-        self.stemming = True
+        self.stemming = False
         self.named_entity = None
         self.re_tweet_set = set()
 
@@ -255,6 +255,7 @@ class Parse:
             urlstokens = self.split_url(term)
             temp_split_url.extend(urlstokens)
             temp_split_url = set(temp_split_url)
+
             temp_split_url = list(temp_split_url)
             return temp_split_url, True
 
@@ -275,7 +276,7 @@ class Parse:
         else:
             pattern = re.compile(r'[\:/?=\-&+]', re.UNICODE).split(tag)
         pattern = [i for i in pattern if i]
-        pattern = [i for i in pattern if i.lower() not in self.stop_words and i != "status" and i != "web"]
+        pattern = [i for i in pattern if i.lower() not in self.stop_words and i != "status" and i != "web" and len(i) < 15]
         return pattern
 
     def find_url(self, text_tokens):
@@ -417,12 +418,12 @@ class Parse:
 
         # update_text = re.sub('(?<=\D)[!?()~:;]|[\u0080-\uFFFF]|(?:\s)http[^, ]*|(?:\s)[a-z][^, ]*|(?:\s)#[^, ]*|(?:\s)@[^, ]*|[!?()~:;](?=\D)', '', text)
         update_text = re.sub('(?<=\D)[!?()~"”“:;]|[\u0080-\uFFFF]|[\u201C]|[!?()~:;](?=\D)', '', text)
-        update_text = re.sub('(?:\s)http[^, ]*|(?:\s)[a-z][^, ]*|(?:\s)#[^, ]*|(?:\s)&[^, ]*|@\w*\s*|#\w*\s*|', '',
+        update_text = re.sub('(?:\s)http[^, ]*||[.,]|(?:\s)[a-z][^, ]*|(?:\s)#[^, ]*|(?:\s)&[^, ]*|@\w*\s*|#\w*\s*|', '',
                              text)
 
         update_text = update_text.replace('\n', ' ')
         update_text = update_text.replace('\t', ' ')
-        # update_text = update_text.replace('-', ' ')
+        # update_text = update_text.replace(',', ' ')
         update_text = update_text.replace("RT", '')
         update_text = update_text.replace(':', '')
         update_text = update_text.replace("”", '')
@@ -431,6 +432,7 @@ class Parse:
         update_text = update_text.replace(char, ' ')
         # text_tokens = WhitespaceTokenizer().tokenize(text)
         text_tokens = update_text.split(" ")
+        # text_tokens = update_text.split(",")
         text_tokens = [i for i in text_tokens if i]
         for term in text_tokens:
             if term[0] == "“":
@@ -477,6 +479,13 @@ class Parse:
                 else:
                     names.append(new_term)
             index_in_text_tokens = next_index_in_text_tokens
+
+
+        new_names = []
+        for name in names:
+            if name in text:
+                new_names.append(name)
+        names = new_names
 
         return Counter(names)
 

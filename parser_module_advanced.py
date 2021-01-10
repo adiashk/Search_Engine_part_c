@@ -15,7 +15,7 @@ class Parse:
         # nltk.download('stopwords')
         # self.stop_words = frozenset(stopwords.words('english'))
         self.stop_words = stopwords.words('english')
-        self.stemming = True
+        self.stemming = False
         self.named_entity = None
         self.re_tweet_set = set()
 
@@ -413,16 +413,84 @@ class Parse:
         return term, skip
 
 
+    # def Named_Entity_Recognition(self, text):
+    #
+    #     # update_text = re.sub('(?<=\D)[!?()~:;]|[\u0080-\uFFFF]|(?:\s)http[^, ]*|(?:\s)[a-z][^, ]*|(?:\s)#[^, ]*|(?:\s)@[^, ]*|[!?()~:;](?=\D)', '', text)
+    #     update_text = re.sub('(?<=\D)[!?()~"”“:;]|[\u0080-\uFFFF]|[\u201C]|[!?()~:;](?=\D)', '', text)
+    #     update_text = re.sub('(?:\s)http[^, ]*|(?:\s)[a-z][^, ]*|(?:\s)#[^, ]*|(?:\s)&[^, ]*|@\w*\s*|#\w*\s*|', '',
+    #                          text)
+    #
+    #     update_text = update_text.replace('\n', ' ')
+    #     update_text = update_text.replace('\t', ' ')
+    #     # update_text = update_text.replace('-', ' ')
+    #     update_text = update_text.replace("RT", '')
+    #     update_text = update_text.replace(':', '')
+    #     update_text = update_text.replace("”", '')
+    #     update_text = update_text.replace('"', '')
+    #     char = "'"
+    #     update_text = update_text.replace(char, ' ')
+    #     # text_tokens = WhitespaceTokenizer().tokenize(text)
+    #     text_tokens = update_text.split(" ")
+    #     text_tokens = [i for i in text_tokens if i]
+    #     for term in text_tokens:
+    #         if term[0] == "“":
+    #             term = term[1:len(term)]
+    #     text_tokens = [i for i in text_tokens if i.isascii() and (i[0].isdigit() or i[0].isupper())]
+    #     origin = text.split(" ")
+    #
+    #     names = []
+    #     index_in_text_tokens = 0
+    #     index_in_origin = 0
+    #
+    #     while index_in_text_tokens < len(text_tokens):
+    #         term = text_tokens[index_in_text_tokens]
+    #         if term.isascii():
+    #             new_term = term
+    #         else:
+    #             index_in_text_tokens += 1
+    #             continue
+    #         while index_in_origin < len(origin) and term not in origin[index_in_origin]:
+    #             index_in_origin += 1
+    #         # upper_words.append(term)
+    #         next_index_in_text_tokens = index_in_text_tokens + 1
+    #         index_in_origin += 1  # location of next term
+    #         if len(text_tokens) - next_index_in_text_tokens > 0:
+    #             # next_index += 1
+    #             next_term = text_tokens[next_index_in_text_tokens]
+    #             while index_in_origin < len(origin) and len(
+    #                     text_tokens) - next_index_in_text_tokens > 0 and next_term in origin[index_in_origin]:
+    #                 # upper_words.append(next_term)
+    #                 new_term += ' ' + next_term
+    #                 next_index_in_text_tokens += 1
+    #                 if len(text_tokens) - next_index_in_text_tokens > 0:
+    #                     next_term = text_tokens[next_index_in_text_tokens]
+    #                     index_in_origin += 1
+    #                 else:
+    #                     break
+    #         if new_term.find(" ") != -1:
+    #             # new_term = new_term.replace('-', ' ')
+    #             temp_new_term = new_term.split(" ")
+    #             if temp_new_term[0].isdigit():
+    #                 names.append(new_term)  # with numbers
+    #                 new_term = new_term.replace(str(temp_new_term[0]) + ' ', '')
+    #                 names.append(new_term)  # without numbers
+    #             else:
+    #                 names.append(new_term)
+    #         index_in_text_tokens = next_index_in_text_tokens
+    #
+    #     return Counter(names)
+
+
     def Named_Entity_Recognition(self, text):
 
         # update_text = re.sub('(?<=\D)[!?()~:;]|[\u0080-\uFFFF]|(?:\s)http[^, ]*|(?:\s)[a-z][^, ]*|(?:\s)#[^, ]*|(?:\s)@[^, ]*|[!?()~:;](?=\D)', '', text)
         update_text = re.sub('(?<=\D)[!?()~"”“:;]|[\u0080-\uFFFF]|[\u201C]|[!?()~:;](?=\D)', '', text)
-        update_text = re.sub('(?:\s)http[^, ]*|(?:\s)[a-z][^, ]*|(?:\s)#[^, ]*|(?:\s)&[^, ]*|@\w*\s*|#\w*\s*|', '',
+        update_text = re.sub('(?:\s)http[^, ]*||[.,]|(?:\s)[a-z][^, ]*|(?:\s)#[^, ]*|(?:\s)&[^, ]*|@\w*\s*|#\w*\s*|', '',
                              text)
 
         update_text = update_text.replace('\n', ' ')
         update_text = update_text.replace('\t', ' ')
-        # update_text = update_text.replace('-', ' ')
+        # update_text = update_text.replace(',', ' ')
         update_text = update_text.replace("RT", '')
         update_text = update_text.replace(':', '')
         update_text = update_text.replace("”", '')
@@ -431,6 +499,7 @@ class Parse:
         update_text = update_text.replace(char, ' ')
         # text_tokens = WhitespaceTokenizer().tokenize(text)
         text_tokens = update_text.split(" ")
+        # text_tokens = update_text.split(",")
         text_tokens = [i for i in text_tokens if i]
         for term in text_tokens:
             if term[0] == "“":
@@ -477,6 +546,13 @@ class Parse:
                 else:
                     names.append(new_term)
             index_in_text_tokens = next_index_in_text_tokens
+
+
+        new_names = []
+        for name in names:
+            if name in text:
+                new_names.append(name)
+        names = new_names
 
         return Counter(names)
 
