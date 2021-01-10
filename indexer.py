@@ -12,9 +12,8 @@ class Indexer:
         self.named_entity_idx = defaultdict(list)
         self.config = config
         self.documents_dict = defaultdict(list)
-        # self.extra_stop_words = ['rt', 'www', 'http', 'https', 'tco', 'didnt', 'dont', 'twitter.com', '&amp', '-', '|']
-        self.extra_stop_words = ['rt']
-        # self.extra_stop_words = []
+        self.extra_stop_words = ['rt', 'www', 'http', 'https', 'tco', 'didnt', 'dont', 'twitter.com', '-', '|']
+
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.

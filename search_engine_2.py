@@ -11,6 +11,7 @@ import numpy as np
 import utils
 from gensim.scripts.glove2word2vec import glove2word2vec
 
+# ********************** gloVe
 
 # DO NOT CHANGE THE CLASS NAME
 class SearchEngine:
@@ -46,14 +47,14 @@ class SearchEngine:
             # index the document data
             self._indexer.add_new_doc(parsed_document)
 
-        print('self._indexer.inverted_idx: ', len(self._indexer.inverted_idx))
-        print('self._indexer.postingDict: ', len(self._indexer.postingDict))
-        print("----------------------------")
+        # print('self._indexer.inverted_idx: ', len(self._indexer.inverted_idx))
+        # print('self._indexer.postingDict: ', len(self._indexer.postingDict))
+        # print("----------------------------")
         self._indexer.inverted_idx = {key: val for key, val in self._indexer.inverted_idx.items() if val > 1}
         self._indexer.postingDict = {key: val for key, val in self._indexer.postingDict.items() if len(val) > 1}
-        print('self._indexer.inverted_idx: ', len(self._indexer.inverted_idx))
-        print('self._indexer.postingDict: ', len(self._indexer.postingDict))
-        print('Finished parsing and indexing.')
+        # print('self._indexer.inverted_idx: ', len(self._indexer.inverted_idx))
+        # print('self._indexer.postingDict: ', len(self._indexer.postingDict))
+        # print('Finished parsing and indexing.')
 
 
         # self._indexer.save_index('idx_bench')

@@ -53,7 +53,9 @@ class Parse:
             parse_query.append(term)
 
         parse_query.extend(self.named_entity)
-        return list(set(parse_query))
+        # return list(set(parse_query))
+        # return list(dict.fromkeys(parse_query))
+        return list(parse_query)
         # return [p for p in parse_query if p not in parse_query]
 
     def parse_sentence(self, text):

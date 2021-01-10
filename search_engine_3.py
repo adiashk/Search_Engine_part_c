@@ -10,6 +10,7 @@ from searcher import Searcher
 import numpy as np
 import utils
 
+# ********************** advanced parser
 
 # DO NOT CHANGE THE CLASS NAME
 class SearchEngine:
@@ -47,7 +48,7 @@ class SearchEngine:
             self._indexer.add_new_doc(parsed_document)
         self._indexer.inverted_idx = {key: val for key, val in self._indexer.inverted_idx.items() if val != 1}
         self._indexer.postingDict = {key: val for key, val in self._indexer.postingDict.items() if len(val) != 1}
-        print('Finished parsing and indexing.')
+        # print('Finished parsing and indexing.')
         # self._indexer.save_index('idx_bench')
 
     # DO NOT MODIFY THIS SIGNATURE

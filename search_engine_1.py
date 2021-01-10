@@ -10,6 +10,7 @@ from searcher import Searcher
 import numpy as np
 import utils
 
+# ********************** wordnet
 
 # DO NOT CHANGE THE CLASS NAME
 class SearchEngine:
@@ -46,7 +47,7 @@ class SearchEngine:
             self._indexer.add_new_doc(parsed_document)
         self._indexer.inverted_idx = {key: val for key, val in self._indexer.inverted_idx.items() if val != 1}
         self._indexer.postingDict = {key: val for key, val in self._indexer.postingDict.items() if len(val) != 1}
-        print('Finished parsing and indexing.')
+        # print('Finished parsing and indexing.')
         # self._indexer.save_index('idx_bench')
 
     # DO NOT MODIFY THIS SIGNATURE
@@ -67,8 +68,7 @@ class SearchEngine:
         This is where you would load models like word2vec, LSI, LDA, etc. and 
         assign to self._model, which is passed on to the searcher at query time.
         """
-        filename = self._config.google_news_vectors_negative300_path
-        self._model = gensim.models.KeyedVectors.load_word2vec_format(filename, binary=True, datatype=np.float16)
+        pass
 
     # DO NOT MODIFY THIS SIGNATURE
     # You can change the internal implementation as you see fit.
@@ -84,7 +84,7 @@ class SearchEngine:
             and the last is the least relevant result.
         """
         searcher = Searcher(self._parser, self._indexer, model=self._model)
-        return searcher.search(query)
+        return searcher.wordnet_search(query)
 
 def read_queries(queries):
     # with open(queries) as f:

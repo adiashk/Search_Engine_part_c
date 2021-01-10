@@ -87,7 +87,6 @@ class Searcher:
         return n_relevant, ranked_doc_ids
 
     # def best_search(self, query, k=None):
-    #     # nltk.download('wordnet')
     #     query_as_list = self._parser.parse_query(query)
     #     query_tmp = list(query_as_list)
     #     for term in query_tmp:

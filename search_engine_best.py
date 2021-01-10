@@ -45,16 +45,16 @@ class SearchEngine:
             number_of_documents += 1
             # index the document data
             self._indexer.add_new_doc(parsed_document)
-        print('self._indexer.inverted_idx: ', len(self._indexer.inverted_idx))
-        print('self._indexer.postingDict: ', len(self._indexer.postingDict))
-        print("----------------------------")
+        # print('self._indexer.inverted_idx: ', len(self._indexer.inverted_idx))
+        # print('self._indexer.postingDict: ', len(self._indexer.postingDict))
+        # print("----------------------------")
         self._indexer.inverted_idx = {key: val for key, val in self._indexer.inverted_idx.items() if val != 1}
         self._indexer.postingDict = {key: val for key, val in self._indexer.postingDict.items() if len(val) != 1}
-        print('self._indexer.inverted_idx: ', len(self._indexer.inverted_idx))
-        print('self._indexer.postingDict: ', len(self._indexer.postingDict))
-        print("----------------------------")
-        print('Finished parsing and indexing.')
-        # self._indexer.save_index('idx_bench')
+        # print('self._indexer.inverted_idx: ', len(self._indexer.inverted_idx))
+        # print('self._indexer.postingDict: ', len(self._indexer.postingDict))
+        # print("----------------------------")
+        # print('Finished parsing and indexing.')
+        self._indexer.save_index('idx_bench')
 
         # temp1 = dict(sorted(self._indexer.inverted_idx.items(), key=lambda item: item[1], reverse=True))
         # temp2 = dict(sorted(self._indexer.inverted_idx.items(), key=lambda item: item[1], reverse=False))
@@ -77,12 +77,12 @@ class SearchEngine:
         This is where you would load models like word2vec, LSI, LDA, etc. and 
         assign to self._model, which is passed on to the searcher at query time.
         """
-        filename = self._config.glove_twitter_27B_25d_path
-        word2vec_output_file = 'glove.twitter.27B.25d.txt.word2vec'
-        glove2word2vec(filename, word2vec_output_file)
-        filename = word2vec_output_file
-        self._model = gensim.models.KeyedVectors.load_word2vec_format(filename, binary=False)
-        # pass
+        # filename = self._config.glove_twitter_27B_25d_path
+        # word2vec_output_file = 'glove.twitter.27B.25d.txt.word2vec'
+        # glove2word2vec(filename, word2vec_output_file)
+        # filename = word2vec_output_file
+        # self._model = gensim.models.KeyedVectors.load_word2vec_format(filename, binary=False)
+        pass
         # filename = self._config.google_news_vectors_negative300_path
         # self._model = gensim.models.KeyedVectors.load_word2vec_format(filename, binary=True)
 
@@ -103,6 +103,7 @@ class SearchEngine:
         searcher = Searcher(self._parser, self._indexer, model=self._model)
         # return searcher.search(query)
         return searcher.wordnet_search(query)
+        # return searcher.best_search(query)
 
 def read_queries(queries):
     # with open(queries) as f:
@@ -126,13 +127,23 @@ def main():
     queries = read_queries("full_queries2.txt")
     df = pd.read_parquet(corpus_path, engine="pyarrow")
     documents_list = df.values.tolist()
-    i = 0
     for query in queries:
+        print("----------------")
+        print(query)
+        i = 0
         n_relevant, ranked_doc_ids = Engine.search(query)
         for doc_tuple in ranked_doc_ids:
             for doc in documents_list:
-                if doc[0] == doc_tuple[0]:
+                if doc[0] == doc_tuple:
                     i += 1
-                    print('tweet id: {}, similarity: {}'.format(doc_tuple[0], doc_tuple[1]))
-                    print(doc[0], ":", doc[2])
+                    # print('tweet id: {}, similarity: {}'.format(doc_tuple[0], doc_tuple[1]))
+                    # print(doc[0], ":", doc[2])
+                    print(i, ":", "Tweet_id =", doc[0])
+                    print("Text =", doc[2])
+                    # print("Rank =", doc_tuple[1])
+                    print()
+                    if i == 5:
+                        break
+            if i == 5:
+                break
 
