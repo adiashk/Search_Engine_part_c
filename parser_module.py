@@ -15,7 +15,7 @@ class Parse:
         # nltk.download('stopwords')
         # self.stop_words = frozenset(stopwords.words('english'))
         self.stop_words = stopwords.words('english')
-        self.stemming = False
+        self.stemming = True
         self.named_entity = None
         self.re_tweet_set = set()
 

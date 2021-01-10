@@ -45,8 +45,14 @@ class SearchEngine:
             number_of_documents += 1
             # index the document data
             self._indexer.add_new_doc(parsed_document)
+        print('self._indexer.inverted_idx: ', len(self._indexer.inverted_idx))
+        print('self._indexer.postingDict: ', len(self._indexer.postingDict))
+        print("----------------------------")
         self._indexer.inverted_idx = {key: val for key, val in self._indexer.inverted_idx.items() if val != 1}
         self._indexer.postingDict = {key: val for key, val in self._indexer.postingDict.items() if len(val) != 1}
+        print('self._indexer.inverted_idx: ', len(self._indexer.inverted_idx))
+        print('self._indexer.postingDict: ', len(self._indexer.postingDict))
+        print("----------------------------")
         print('Finished parsing and indexing.')
         # self._indexer.save_index('idx_bench')
 
@@ -71,12 +77,12 @@ class SearchEngine:
         This is where you would load models like word2vec, LSI, LDA, etc. and 
         assign to self._model, which is passed on to the searcher at query time.
         """
-        # filename = self._config.glove_twitter_27B_25d_path
-        # word2vec_output_file = 'glove.twitter.27B.25d.txt.word2vec'
-        # glove2word2vec(filename, word2vec_output_file)
-        # filename = word2vec_output_file
-        # self._model = gensim.models.KeyedVectors.load_word2vec_format(filename, binary=False)
-        pass
+        filename = self._config.glove_twitter_27B_25d_path
+        word2vec_output_file = 'glove.twitter.27B.25d.txt.word2vec'
+        glove2word2vec(filename, word2vec_output_file)
+        filename = word2vec_output_file
+        self._model = gensim.models.KeyedVectors.load_word2vec_format(filename, binary=False)
+        # pass
         # filename = self._config.google_news_vectors_negative300_path
         # self._model = gensim.models.KeyedVectors.load_word2vec_format(filename, binary=True)
 

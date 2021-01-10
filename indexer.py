@@ -69,7 +69,7 @@ class Indexer:
                     self.inverted_idx[term] += 1
                     self.postingDict[term].append((document.tweet_id, document_dictionary[term]))
                     # TODO- save  details about doc
-                self.inverted_idx = {key: val for key, val in self.inverted_idx.items() if val != 0}
+                # self.inverted_idx = {key: val for key, val in self.inverted_idx.items() if val != 0}
 
             except:
                 print('problem with the following key {}'.format(term[0]))
